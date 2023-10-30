@@ -1,0 +1,24 @@
+{
+  "name": "time-locked-savings",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "coverate": "npx hardhat coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baahkusi/time-locked-savings.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/baahkusi/time-locked-savings/issues"
+  },
+  "homepage": "https://github.com/baahkusi/time-locked-savings#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "hardhat": "^2.18.3"
+  }
+}
