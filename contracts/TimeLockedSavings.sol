@@ -50,7 +50,7 @@ contract TimeLockedSavings {
     }
 
     modifier vaultUnlocked(uint256 vaultId) {
-        if (vaults[vaultId].lockEndTime < block.timestamp) revert VaultLocked();
+        if (vaults[vaultId].lockEndTime >= block.timestamp) revert VaultLocked();
         _;
     }
 
@@ -67,7 +67,7 @@ contract TimeLockedSavings {
         string memory _purpose
     ) external payable nonZeroValue {
         if (_targetAmount == 0) revert ZeroTargetAmount();
-        if (minDeposit(_targetAmount) < msg.value)
+        if (msg.value < minDeposit(_targetAmount))
             revert InvalidDepositAmount();
         if (_duration < minDuration()) revert InvalidDuration();
         if (bytes(_purpose).length == 0) revert EmptyPurpose();
