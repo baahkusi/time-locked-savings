@@ -108,6 +108,7 @@ function upsertVault(
   action.action = actionType.toString();
   action.actor = actor.toHexString();
   action.amount = amount;
+  action.save();
   vault.save();
 }
 
