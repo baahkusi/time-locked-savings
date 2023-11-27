@@ -1,0 +1,30 @@
+specVersion: 0.0.5
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Contract
+    network: sepolia
+    source:
+      address: "0xC6912704c199B40Aa95E609068d255a2Ca09AF14"
+      abi: Contract
+      startBlock: 4776007
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Deposit
+        - VaultCreated
+        - Withdrawal
+      abis:
+        - name: Contract
+          file: Contract/abis/Contract.json
+      eventHandlers:
+        - event: Deposit(uint256)
+          handler: handleDeposit
+        - event: VaultCreated(uint256)
+          handler: handleVaultCreated
+        - event: Withdrawal(uint256)
+          handler: handleWithdrawal
+      file: Contract/Contract.wasm
