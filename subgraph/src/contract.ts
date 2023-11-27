@@ -9,12 +9,6 @@ import { AggregateVault, Owner, OwnerAction, Vault } from "../generated/schema";
 
 const AGGREGATE_TOTAL = "total";
 
-const enum ActionType {
-  Create,
-  Deposit,
-  Withdraw,
-}
-
 export function handleDeposit(event: DepositEvent): void {
   const actionId = event.transaction.hash
     .concatI32(event.logIndex.toI32())
@@ -23,7 +17,7 @@ export function handleDeposit(event: DepositEvent): void {
     event.address,
     event.params.vaultId,
     actionId,
-    ActionType.Deposit,
+    "Deposit",
     event.transaction.from,
     event.transaction.value
   );
@@ -37,7 +31,7 @@ export function handleVaultCreated(event: VaultCreatedEvent): void {
     event.address,
     event.params.vaultId,
     actionId,
-    ActionType.Create,
+    "Create",
     event.transaction.from,
     event.transaction.value
   );
@@ -51,7 +45,7 @@ export function handleWithdrawal(event: WithdrawalEvent): void {
     event.address,
     event.params.vaultId,
     actionId,
-    ActionType.Withdraw,
+    "Withdraw",
     event.transaction.from,
     event.transaction.value
   );
@@ -61,7 +55,7 @@ function upsertVault(
   contractAddress: Address,
   vaultId: BigInt,
   actionId: string,
-  actionType: ActionType,
+  actionType: string,
   actor: Address,
   amount: BigInt
 ): void {
@@ -83,19 +77,16 @@ function upsertVault(
   let totalDeposit: BigInt = BigInt.fromI32(0);
   let totalTarget: BigInt = BigInt.fromI32(0);
   let totalWithdrawn: BigInt = BigInt.fromI32(0);
-  switch (actionType) {
-    case ActionType.Create:
-      totalDeposit = amount;
-      totalTarget = vaultOnContract.getTargetAmount();
-      break;
-    case ActionType.Deposit:
-      totalDeposit = amount;
-      break;
-    case ActionType.Withdraw:
-      totalWithdrawn = vaultOnContract.getDepositAmount();
-      break;
-    default:
-      break;
+  let saveAction = true;
+  if (actionType == "Create") {
+    totalDeposit = amount;
+    totalTarget = vaultOnContract.getTargetAmount();
+  } else if (actionType == "Deposit") {
+    totalDeposit = amount;
+  } else if (actionType == "Withdraw") {
+    totalWithdrawn = vaultOnContract.getDepositAmount();
+  } else {
+    saveAction = false;
   }
   updateOwner(
     vaultOnContract.getOwner(),
@@ -104,11 +95,13 @@ function upsertVault(
     totalWithdrawn
   );
   updateAggregate(totalDeposit, totalTarget, totalWithdrawn);
-  const action = new OwnerAction(actionId);
-  action.action = actionType.toString();
-  action.actor = actor.toHexString();
-  action.amount = amount;
-  action.save();
+  if (saveAction) {
+    const action = new OwnerAction(actionId);
+    action.action = actionType;
+    action.actor = actor.toHexString();
+    action.amount = amount;
+    action.save();
+  }
   vault.save();
 }
 
