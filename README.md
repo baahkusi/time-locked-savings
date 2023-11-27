@@ -64,3 +64,7 @@ Sepolia
   "contractAddress": "0xC6912704c199B40Aa95E609068d255a2Ca09AF14"
 }
 ```
+
+#### Graph Studio Deployment
+
+https://api.studio.thegraph.com/query/52116/locked-saving/version/latest 
