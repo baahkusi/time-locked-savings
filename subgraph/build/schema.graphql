@@ -9,6 +9,7 @@ type Vault @entity {
   id: String!
   depositAmount: BigInt!
   targetAmount: BigInt!
+  lockStartTime: BigInt!
   lockEndTime: BigInt!
   purpose: String!
   withdrawn: Boolean!
@@ -24,8 +25,10 @@ type Owner @entity {
 
 type OwnerAction @entity {
   id: String!
+  owner: Owner!
   action: ActionType!
   actor: String!
+  vault: Vault!
   amount: BigInt!
 }
 

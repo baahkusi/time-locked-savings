@@ -19,7 +19,8 @@ export function handleDeposit(event: DepositEvent): void {
     actionId,
     "Deposit",
     event.transaction.from,
-    event.transaction.value
+    event.transaction.value,
+    event.block.timestamp
   );
 }
 
@@ -33,7 +34,8 @@ export function handleVaultCreated(event: VaultCreatedEvent): void {
     actionId,
     "Create",
     event.transaction.from,
-    event.transaction.value
+    event.transaction.value,
+    event.block.timestamp
   );
 }
 
@@ -47,7 +49,8 @@ export function handleWithdrawal(event: WithdrawalEvent): void {
     actionId,
     "Withdraw",
     event.transaction.from,
-    event.transaction.value
+    event.transaction.value,
+    event.block.timestamp
   );
 }
 
@@ -57,7 +60,8 @@ function upsertVault(
   actionId: string,
   actionType: string,
   actor: Address,
-  amount: BigInt
+  amount: BigInt,
+  timeStamp: BigInt,
 ): void {
   const timeLocked = Contract.bind(contractAddress);
   const vaultOnContract = timeLocked.vaults(vaultId);
@@ -66,6 +70,7 @@ function upsertVault(
     vault = new Vault(vaultId.toString());
     vault.depositAmount = vaultOnContract.getDepositAmount();
     vault.targetAmount = vaultOnContract.getTargetAmount();
+    vault.lockStartTime = timeStamp;
     vault.lockEndTime = vaultOnContract.getLockEndTime();
     vault.purpose = vaultOnContract.getPurpose();
     vault.withdrawn = vaultOnContract.getWithdrawn();
@@ -100,6 +105,8 @@ function upsertVault(
     action.action = actionType;
     action.actor = actor.toHexString();
     action.amount = amount;
+    action.owner = vaultOnContract.getOwner().toHexString();
+    action.vault = vaultId.toString();
     action.save();
   }
   vault.save();
@@ -111,18 +118,18 @@ function updateOwner(
   totalTarget: BigInt,
   totalWithdrawn: BigInt
 ): void {
-  let aggregate = Owner.load(owner.toHexString());
-  if (aggregate == null) {
-    aggregate = new Owner(AGGREGATE_TOTAL);
-    aggregate.totalDeposit = totalDeposit;
-    aggregate.totalTarget = totalTarget;
-    aggregate.totalWithdrawn = totalWithdrawn;
+  let ownerAggregate = Owner.load(owner.toHexString());
+  if (ownerAggregate == null) {
+    ownerAggregate = new Owner(owner.toHexString());
+    ownerAggregate.totalDeposit = totalDeposit;
+    ownerAggregate.totalTarget = totalTarget;
+    ownerAggregate.totalWithdrawn = totalWithdrawn;
   } else {
-    aggregate.totalDeposit = aggregate.totalDeposit.plus(totalDeposit);
-    aggregate.totalTarget = aggregate.totalTarget.plus(totalTarget);
-    aggregate.totalWithdrawn = aggregate.totalWithdrawn.plus(totalWithdrawn);
+    ownerAggregate.totalDeposit = ownerAggregate.totalDeposit.plus(totalDeposit);
+    ownerAggregate.totalTarget = ownerAggregate.totalTarget.plus(totalTarget);
+    ownerAggregate.totalWithdrawn = ownerAggregate.totalWithdrawn.plus(totalWithdrawn);
   }
-  aggregate.save();
+  ownerAggregate.save();
 }
 
 function updateAggregate(

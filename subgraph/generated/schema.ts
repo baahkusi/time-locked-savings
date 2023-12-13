@@ -157,6 +157,19 @@ export class Vault extends Entity {
     this.set("targetAmount", Value.fromBigInt(value));
   }
 
+  get lockStartTime(): BigInt {
+    let value = this.get("lockStartTime");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lockStartTime(value: BigInt) {
+    this.set("lockStartTime", Value.fromBigInt(value));
+  }
+
   get lockEndTime(): BigInt {
     let value = this.get("lockEndTime");
     if (!value || value.kind == ValueKind.NULL) {
@@ -330,6 +343,19 @@ export class OwnerAction extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get owner(): string {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string) {
+    this.set("owner", Value.fromString(value));
+  }
+
   get action(): string {
     let value = this.get("action");
     if (!value || value.kind == ValueKind.NULL) {
@@ -354,6 +380,19 @@ export class OwnerAction extends Entity {
 
   set actor(value: string) {
     this.set("actor", Value.fromString(value));
+  }
+
+  get vault(): string {
+    let value = this.get("vault");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set vault(value: string) {
+    this.set("vault", Value.fromString(value));
   }
 
   get amount(): BigInt {
